@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .clear-button {
+            background-color: #dc3545;
+        }
+
+        .clear-button:hover {
+            background-color: #c82333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+    <script>
+        function loadResults() {
+            const results = JSON.parse(localStorage.getItem("quizResults")) || [];
+            const table = document.getElementById("resultsTable");
+            table.innerHTML = ""; // Bersihkan tabel sebelum menambahkan data
+
+            results.forEach((result) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${result.name}</td>
+                    <td>${result.wa}</td>
+                    <td>${result.score}</td>
+                    <td>${result.reward}</td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        function updateToken() {
+            const newToken = document.getElementById("newToken").value;
+
+            if (newToken) {
+                localStorage.setItem("tokenFromAdmin", newToken);
+                alert("Token berhasil diupdate!");
+                document.getElementById("newToken").value = "";
+            } else {
+                alert("Token baru harus diisi!");
+            }
+        }
+
+        function clearResults() {
+            if (confirm("Apakah Anda yakin ingin menghapus semua data hasil quiz?")) {
+                localStorage.removeItem("quizResults"); // Hapus data dari localStorage
+                loadResults(); // Muat ulang tabel tanpa data
+                alert("Semua data hasil quiz telah dihapus.");
+            }
+        }
+
+        function clearToken() {
+            const tokenToClear = document.getElementById("clearTokenInput").value;
+
+            if (!tokenToClear) {
+                alert("Masukkan token yang ingin dihapus dari daftar penggunaan.");
+                return;
+            }
+
+            // Ambil daftar token yang sudah digunakan
+            let usedTokens = JSON.parse(localStorage.getItem("usedTokens")) || [];
+
+            if (usedTokens.includes(tokenToClear)) {
+                usedTokens = usedTokens.filter(token => token !== tokenToClear); // Hapus token dari daftar
+                localStorage.setItem("usedTokens", JSON.stringify(usedTokens));
+                alert(`Token "${tokenToClear}" berhasil dihapus dari daftar penggunaan.`);
+                document.getElementById("clearTokenInput").value = "";
+            } else {
+                alert(`Token "${tokenToClear}" tidak ditemukan di daftar token yang digunakan.`);
+            }
+        }
+
+        window.onload = () => {
+            loadResults();
+
+            const savedToken = localStorage.getItem("tokenFromAdmin");
+            if (savedToken) {
+                document.getElementById("currentToken").innerText = savedToken;
+            } else {
+                document.getElementById("currentToken").innerText = "12345 (Default)";
+            }
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Panel</h1>
+        <h3>Token Sekarang: <span id="currentToken"></span></h3>
+        <label for="newToken">Token Baru:</label>
+        <input type="text" id="newToken">
+        <button onclick="updateToken()">Update Token</button>
+
+        <h3>Hapus Token dari Daftar Penggunaan</h3>
+        <label for="clearTokenInput">Masukkan Token yang Akan Dibuat Bisa Digunakan Lagi:</label>
+        <input type="text" id="clearTokenInput">
+        <button class="clear-button" onclick="clearToken()">Clear Token</button>
+
+        <h3>Hasil Quiz</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Nomor WA</th>
+                    <th>Skor</th>
+                    <th>Hadiah</th>
+                </tr>
+            </thead>
+            <tbody id="resultsTable"></tbody>
+        </table>
+
+        <button class="clear-button" onclick="clearResults()">Clear Data</button>
+    </div>
+</body>
+</html>

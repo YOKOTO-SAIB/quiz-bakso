@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .admin-link {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #333;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .admin-link:hover {
+            background-color: #444;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script>
+        function startQuiz() {
+            const name = document.getElementById("name").value;
+            const token = document.getElementById("token").value;
+
+            if (!name || !token) {
+                alert("Nama dan token harus diisi!");
+                return;
+            }
+
+            // Ambil token yang disimpan oleh admin
+            const tokenFromAdmin = localStorage.getItem("tokenFromAdmin") || "12345";
+
+            // Ambil daftar token yang sudah digunakan
+            const usedTokens = JSON.parse(localStorage.getItem("usedTokens")) || [];
+
+            if (token !== tokenFromAdmin) {
+                alert("Token salah!");
+                return;
+            }
+
+            if (usedTokens.includes(token)) {
+                alert("Token ini sudah digunakan!");
+                return;
+            }
+
+            // Simpan token sebagai sudah digunakan
+            usedTokens.push(token);
+            localStorage.setItem("usedTokens", JSON.stringify(usedTokens));
+
+            // Tampilkan pertanyaan quiz
+            document.getElementById("quizForm").classList.add("hidden");
+            document.getElementById("quizQuestions").classList.remove("hidden");
+        }
+
+        function submitAnswers() {
+            const name = document.getElementById("name").value;
+            const wa = document.getElementById("wa").value;
+            const q1 = document.querySelector('input[name="q1"]:checked');
+            const q2 = document.querySelector('input[name="q2"]:checked');
+            const q3 = document.querySelector('input[name="q3"]:checked');
+
+            if (!q1 || !q2) {
+                alert("Semua pertanyaan harus dijawab!");
+                return;
+            }
+
+            let correctAnswers = 0;
+            if (q1.value === "notch") correctAnswers++;
+            if (q2.value === "angga") correctAnswers++;
+            if (q3.value === "yokoto") correctAnswers++;
+
+            const score = correctAnswers * 50; // Setiap jawaban benar bernilai 50
+            const reward = correctAnswers === 3 ? "Hadiah Besar" : correctAnswers === 2 ? "Hadiah Kecil" :correctAnswers === 1 ? "bodoh"  : "Tidak Ada Hadiah";
+
+            // Kirim data ke halaman admin melalui Local Storage
+            const results = JSON.parse(localStorage.getItem("quizResults")) || [];
+            results.push({ name, wa, score, reward });
+            localStorage.setItem("quizResults", JSON.stringify(results));
+
+            alert(`Jawaban benar: ${correctAnswers}\nSkor: ${score}\nHadiah: ${reward}`);
+            location.reload();
+        }
+    </script>
+</head>
+<body>
+    <a href="loginadmin.html" class="admin-link">Login Admin</a>
+    <div class="container" id="quizForm">
+        <h1>Quiz</h1>
+        <form onsubmit="event.preventDefault(); startQuiz();">
+            <label for="name">Nama:</label>
+            <input type="text" id="name" required>
+            <label for="token">Token:</label>
+            <input type="text" id="token" required>
+            <button type="submit">Mulai Quiz</button>
+        </form>
+    </div>
+
+    <div class="container hidden" id="quizQuestions">
+        <h2>Pertanyaan Quiz</h2>
+        <form onsubmit="event.preventDefault(); submitAnswers();">
+            <label for="q1">1. siapa yang membuat Minecraft?</label>
+            <input type="radio" name="q1" value="mojang"> mojang<br>
+            <input type="radio" name="q1" value="notch"> notch<br>
+            <input type="radio" name="q1" value="enchanbuilder"> enchanbuilder<br>
+
+            <label for="q2">2. Siapa nama asli Goofier?</label>
+            <input type="radio" name="q2" value="ahmad sodik"> ahmad sodik<br>
+            <input type="radio" name="q2" value="arga"> arga<br>
+            <input type="radio" name="q2" value="angga"> angga<br>
+            
+            <label for="q3">3. siapakah orang yang membuat apk quiz ini</label>
+            <input type="radio" name="q3" value="Gofier"> Gofier<br>
+            <input type="radio" name="q3" value="yokoto"> yokoto<br>
+            <input type="radio" name="q3" value="levi"> levi<br>
+
+            <label for="wa">Nomor WhatsApp:</label>
+            <input type="text" id="wa" required>
+
+            <button type="submit">Kirim Jawaban</button>
+        </form>
+    </div>
+</body>
+</html>
