@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .admin-link {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #333;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .admin-link:hover {
+            background-color: #444;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script>
+        function startQuiz() {
+            const name = document.getElementById("name").value;
+            const token = document.getElementById("token").value;
+
+            if (!name || !token) {
+                alert("Nama dan token harus diisi!");
+                return;
+            }
+
+            // Ambil token yang disimpan oleh admin
+            const tokenFromAdmin = localStorage.getItem("tokenFromAdmin") || "12345";
+
+            // Ambil daftar token yang sudah digunakan
+            const usedTokens = JSON.parse(localStorage.getItem("usedTokens")) || [];
+
+            if (token !== tokenFromAdmin) {
+                alert("Token salah!");
+                return;
+            }
+
+            if (usedTokens.includes(token)) {
+                alert("Token ini sudah digunakan!");
+                return;
+            }
+
+            // Simpan token sebagai sudah digunakan
+            usedTokens.push(token);
+            localStorage.setItem("usedTokens", JSON.stringify(usedTokens));
+
+            // Tampilkan pertanyaan quiz
+            document.getElementById("quizForm").classList.add("hidden");
+            document.getElementById("quizQuestions").classList.remove("hidden");
+        }
+
+        function submitAnswers() {
+            const name = document.getElementById("name").value;
+            const wa = document.getElementById("wa").value;
+            const q1 = document.querySelector('input[name="q1"]:checked');
+            const q2 = document.querySelector('input[name="q2"]:checked');
+            const q3 = document.querySelector('input[name="q3"]:checked');
+            const q4 = document.querySelector('input[name="q4"]:checked');
+            const q5 = document.querySelector('input[name="q5"]:checked');
+            const q6 = document.querySelector('input[name="q6"]:checked');
+            const q7 = document.querySelector('input[name="q7"]:checked');
+            const q8 = document.querySelector('input[name="q8"]:checked');
+            const q9 = document.querySelector('input[name="q9"]:checked');
+            const q10 = document.querySelector('input[name="q10"]:checked');
+
+            if (!q1 || !q2 || !q3 || !q4 || !q5 || !q6 || !q7 || !q8 || !q9 || !q10) {
+                alert("Semua pertanyaan harus dijawab!");
+                return;
+            }
+
+            let correctAnswers = 0;
+            if (q1.value === "notch") correctAnswers++;
+            if (q2.value === "angga") correctAnswers++;
+            if (q3.value === "yokoto") correctAnswers++;
+            if (q4.value === "membandingkan sinyal") correctAnswers++;
+            if (q5.value === "repeat") correctAnswers++;
+            if (q6.value === "10") correctAnswers++;
+            if (q7.value === "angga dan pow") correctAnswers++;
+            if (q8.value === "pow,han,okta,dan bagas") correctAnswers++;
+            if (q9.value === "7") correctAnswers++;
+            if (q10.value === "11 Agustus 2024") correctAnswers++;
+
+            const score = correctAnswers * 10; // Setiap jawaban benar bernilai 10
+            const reward = correctAnswers === 10 ? "Requests are prohibited for indestructible blocks like bedrock." : correctAnswers === 9 ? "Neterlet body armor and pants Blast protection II and thorn II pickaxe Encent Efesien III" : correctAnswers === 8 ? "Neterlet Sword encent sharpness IV Fire Aspect I" : correctAnswers === 7 ? "Full Diamond armor,pickaxe,axe,sword and 32 diamonds (Armornya boleh pilih encentnya 1 jenis untuk semua armor Tingkatan III)" : correctAnswers === 6 ? "Coal,wood,stone,iron, 128 gold and 18 diamonds" : correctAnswers === 5 ? "Wood,Coal 128,Full Armor Gold,all equipment made of gold and 64 raw gold bars 32 gold bars 16 gold blocks" : correctAnswers === 4 ? "Coal,Stone,Wood 64,Full Armor Leather Encent Thorn II all and Pickaxe,sword,axe,hoe,iron pickaxe" : correctAnswers === 3 ? "Wood,coal,stone and iron 31" : correctAnswers === 2 ? "Wood,coal and stone 64" :correctAnswers === 1 ? "Wood and coal 32"  : "zonk";
+
+            // Kirim data ke halaman admin melalui Local Storage
+            const results = JSON.parse(localStorage.getItem("quizResults")) || [];
+            results.push({ name, wa, score, reward });
+            localStorage.setItem("quizResults", JSON.stringify(results));
+
+            alert(`Jawaban benar: ${correctAnswers}\nSkor: ${score}\nHadiah: ${reward}`);
+            location.reload();
+        }
+    </script>
+</head>
+<body>
+    <a href="loginadmin.html" class="admin-link">Login Admin</a>
+    <div class="container" id="quizForm">
+        <h1>Quiz</h1>
+        <form onsubmit="event.preventDefault(); startQuiz();">
+            <label for="name">Nama:</label>
+            <input type="text" id="name" required>
+            <label for="token">Token:</label>
+            <input type="text" id="token" required>
+            <button type="submit">Mulai Quiz</button>
+        </form>
+    </div>
+
+    <div class="container hidden" id="quizQuestions">
+        <h2>Pertanyaan Quiz</h2>
+        <form onsubmit="event.preventDefault(); submitAnswers();">
+            <label for="q1">1. siapa yang membuat Minecraft?</label>
+            <input type="radio" name="q1" value="mojang"> mojang<br>
+            <input type="radio" name="q1" value="notch"> notch<br>
+            <input type="radio" name="q1" value="enchanbuilder"> enchanbuilder<br>
+
+            <label for="q2">2. Siapa nama asli Goofier?</label>
+            <input type="radio" name="q2" value="ahmad sodik"> ahmad sodik<br>
+            <input type="radio" name="q2" value="arga"> arga<br>
+            <input type="radio" name="q2" value="angga"> angga<br>
+            
+            <label for="q3">3. siapakah orang yang membuat apk quiz ini</label>
+            <input type="radio" name="q3" value="Gofier"> Gofier<br>
+            <input type="radio" name="q3" value="yokoto"> yokoto<br>
+            <input type="radio" name="q3" value="levi"> levi<br>
+            
+            <label for="q4">4. apa fungsi comparatr dalam sistem redstone</label>
+            <input type="radio" name="q4" value="mengaktifkan piston"> mengaktifkan piston<br>
+            <input type="radio" name="q4" value="membandingkan sinyal"> membandingkan sinyal<br>
+            <input type="radio" name="q4" value="menguatkan sinyal"> menguatkan sinyal<br>
+            
+            <label for="q5">5. apa jenis command block yang menjalankan perintah berulang kali?</label>
+            <input type="radio" name="q5" value="impulse"> impulse<br>
+            <input type="radio" name="q5" value="repeat"> repeat<br>
+            <input type="radio" name="q5" value="chain"> chain<br>
+            
+            <label for="q6">6. berapa jumlah orang yang pernah jadi admin di komunitas bakso smp</label>
+            <input type="radio" name="q6" value="7"> 7<br>
+            <input type="radio" name="q6" value="10"> 10<br>
+            <input type="radio" name="q6" value="11"> 11<br>
+            
+            <label for="q7">7. siapa admin pertama dan ke dua di bakso smp </label>
+            <input type="radio" name="q7" value="han dan angga"> han dan angga<br>
+            <input type="radio" name="q7" value="pow dan angga"> pow dan angga<br>
+            <input type="radio" name="q7" value="angga dan pow"> angga dan pow<br>
+            
+            <label for="q8">8. sebutkan nama admin yang pernah memegang server atau panel Minecraft </label>
+            <input type="radio" name="q8" value="pow,han,bagas,dan angga"> pow,han,bagas,dan angga<br>
+            <input type="radio" name="q8" value="pow,han,okta, dan angga"> pow,han,okta, dan angga<br>
+            <input type="radio" name="q8" value="pow,han,okta,dan bagas"> pow,han,okta,dan bagas<br>
+            
+            <label for="q9">9. bakso smp sudah berapa kali hancur?</label>
+            <input type="radio" name="q9" value="1"> 1<br>
+            <input type="radio" name="q9" value="4"> 4<br>
+            <input type="radio" name="q9" value="7"> 7<br>
+            
+            <label for="q10">10. kapan bakso smp berdiri ?</label>
+            <input type="radio" name="q10" value="Agustus 2024"> 11 Agustus 2024<br>
+            <input type="radio" name="q10" value="30 September 2024"> 30 September 2024<br>
+            <input type="radio" name="q10" value="12 Agustus 2024"> 12 Agustus 2024<br>
+            
+            
+
+            <label for="wa">Nomor WhatsApp:</label>
+            <input type="text" id="wa" required>
+
+            <button type="submit">Kirim Jawaban</button>
+        </form>
+    </div>
+</body>
+</html>
